@@ -10,10 +10,9 @@ import java.util.List;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<Favorite, Integer> {
+    List<Favorite> findByUser(User user);
     Optional<Favorite> findByUserAndMovie(User user, Movie movie);
-    List<Favorite> findAllByUser(User user);
+    boolean existsByUserAndMovie(User user, Movie movie);
+    void deleteByUser(User user);
     void deleteByUserAndMovie(User user, Movie movie);
 }
-
-
-

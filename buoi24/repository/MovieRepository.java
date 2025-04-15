@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import vn.scrip.buoi24.entity.Movie;
 import vn.scrip.buoi24.model.enums.MovieType;
 import java.util.List;
+import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
-    Page<Movie> findByTypeAndStatus(MovieType type, boolean status, Pageable pageable);
-    List<Movie> findByStatusOrderByRatingDesc(boolean status, Pageable pageable);
-    Movie findByIdAndSlugAndStatus(Integer id, String slug, boolean status);
+    Page<Movie> findTopByIsHotAndIsActiveOrderByIdDesc(boolean isHot, boolean isActive, Pageable pageable);
+    Page<Movie> findByTypeAndIsActive(MovieType type, boolean isActive, Pageable pageable);
+    Optional<Movie> findByIdAndSlugAndIsActive(Integer id, String slug, boolean isActive);
+
 }

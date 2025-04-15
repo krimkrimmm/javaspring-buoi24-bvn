@@ -1,10 +1,11 @@
 package vn.scrip.buoi24.entity;
+
 import vn.scrip.buoi24.model.enums.MovieType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.time.LocalDateTime;
 
+import java.time.LocalDateTime;
 import java.util.List;
 @ToString
 @Getter
@@ -13,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
 
+@Entity
 @Table(name = "movies")
 public class Movie {
     @Id
@@ -23,32 +24,39 @@ public class Movie {
     @Column(nullable = false)
     String name;
     String slug;
-    @Column(columnDefinition = "TEXT")
 
+    @Column(columnDefinition = "TEXT")
     String description;
     String thumbnail;
     Integer releaseYear;
-    Boolean status;
+    @Column(name = "is_active")
+    Boolean isActive;
+    @Column(name = "is_hot")
+    Boolean isHot;
     String trailer;
+
     @Column(columnDefinition = "double default 5.0")
     Double rating;
+
     @Enumerated(EnumType.STRING)
     MovieType type;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime publishedAt;
+
     @ManyToOne
     @JoinColumn(name = "country_id")
     Country country;
+
     @ManyToMany
     @JoinTable(
             name = "movies_genres",
-
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
     List<Genre> genres;
+
     @ManyToMany
     @JoinTable(
             name = "movies_actors",
@@ -56,6 +64,7 @@ public class Movie {
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
     List<Actor> actors;
+
     @ManyToMany
     @JoinTable(
             name = "movies_directors",
@@ -64,4 +73,3 @@ public class Movie {
     )
     List<Director> directors;
 }
-
