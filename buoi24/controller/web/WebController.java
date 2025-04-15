@@ -1,24 +1,31 @@
 package vn.scrip.buoi24.controller.web;
 
-import vn.scrip.buoi24.entity.Episode;
-import vn.scrip.buoi24.entity.Movie;
-import vn.scrip.buoi24.model.enums.MovieType;
-import vn.scrip.buoi24.service.EpisodeService;
-import vn.scrip.buoi24.service.MovieService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import vn.scrip.buoi24.entity.Episode;
+import vn.scrip.buoi24.entity.Movie;
+import vn.scrip.buoi24.entity.User;
+import vn.scrip.buoi24.model.enums.MovieType;
+import vn.scrip.buoi24.service.EpisodeService;
+import vn.scrip.buoi24.service.FavoriteMovieService;
+import vn.scrip.buoi24.service.MovieService;
+import vn.scrip.buoi24.service.UserService;
+
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 @Controller
 @RequiredArgsConstructor
 public class WebController {
+
     private final MovieService movieService;
     private final EpisodeService episodeService;
+    private final UserService userService;
+    private final FavoriteMovieService favoriteMovieService;
 
     @GetMapping("/")
     public String getHomePage(Model model) {
@@ -66,12 +73,52 @@ public class WebController {
     }
 
     @GetMapping("/phim/{id}/{slug}")
-    public String getMovieDetailsPage(@PathVariable Integer id, @PathVariable String slug, Model model) {
+    public String getMovieDetailsPage(@PathVariable Integer id,
+                                      @PathVariable String slug,
+                                      Model model) {
         Movie movie = movieService.findMovieDetails(id, slug);
-        List<Episode> episodes = episodeService.findEpisodesByMovieId(id);
+        if (movie == null) {
+            return "redirect:/";
+        }
 
+        List<Episode> episodes = episodeService.findEpisodesByMovieId(id);
         model.addAttribute("movie", movie);
         model.addAttribute("episodes", episodes);
+        model.addAttribute("isFavorite", isFavoriteMovie(movie));
+
         return "web/chi-tiet-phim";
+    }
+
+    @PostMapping("/phim/{id}/{slug}/favorite")
+    public String toggleFavorite(@PathVariable Integer id,
+                                 @PathVariable String slug) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (username == null || username.equals("anonymousUser")) {
+            return "redirect:/login";
+        }
+
+        User user = userService.findByUsername(username);
+        Movie movie = movieService.findMovieDetails(id, slug);
+        if (user == null || movie == null) {
+            return "redirect:/";
+        }
+
+        if (favoriteMovieService.isFavorite(user, movie)) {
+            favoriteMovieService.removeFavorite(user, movie);
+        } else {
+            favoriteMovieService.addFavorite(user, movie);
+        }
+
+        return "redirect:/phim/" + id + "/" + slug;
+    }
+
+    private boolean isFavoriteMovie(Movie movie) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (username == null || username.equals("anonymousUser")) {
+            return false;
+        }
+
+        User user = userService.findByUsername(username);
+        return user != null && favoriteMovieService.isFavorite(user, movie);
     }
 }

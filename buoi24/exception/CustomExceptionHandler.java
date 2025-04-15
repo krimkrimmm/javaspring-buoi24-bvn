@@ -14,6 +14,7 @@ import java.util.Map;
 public class CustomExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handlerNotFoundException(NotFoundException e) {
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND) // 404
                 .message(e.getMessage())
@@ -23,8 +24,8 @@ public class CustomExceptionHandler {
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<?> handlerBadRequestException(BadRequestException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST) // 400
 
+                .status(HttpStatus.BAD_REQUEST) // 400
                 .message(e.getMessage())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -33,17 +34,17 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> handlerException(Exception e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR) // 500
-                .message(e.getMessage())
 
+                .message(e.getMessage())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
+
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
@@ -54,3 +55,4 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }
+

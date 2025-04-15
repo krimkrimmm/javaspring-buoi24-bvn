@@ -1,21 +1,29 @@
 package vn.scrip.buoi24.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
-
 @Entity
-@Getter @Setter
+@Table(name = "favorite_movies")
+@Data
+
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class FavoriteMovie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne
+    @JoinColumn(name = "movie_id")
     private Movie movie;
 }
+
+
+
+
+
+
+
+
